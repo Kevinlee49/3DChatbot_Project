@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Windows.Speech;
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -18,9 +19,12 @@ using UnityEngine.Networking;
 /// 
 /// added by shachar oz
 /// </summary>
+
 public class SpeechRecog : MonoBehaviour
 {
     public Text ResultedText;
+    public ArrayList InputQuestions = new ArrayList();
+    public ArrayList InputAnswers = new ArrayList();
 
     protected DictationRecognizer dictationRecognizer;
 
@@ -31,9 +35,17 @@ public class SpeechRecog : MonoBehaviour
     public UnityEngine.Events.UnityEvent OnUserStartedSpeaking;
 
     private bool isUserSpeaking;
+    private string path = @"D:\unity\results.csv";
 
     void Start()
     {
+        if (!File.Exists(path))
+        {
+            using (File.Create(path))
+            {
+                Debug.Log("results.csv created.");
+            }
+        }
         StartDictationEngine();
     }
 
@@ -108,13 +120,46 @@ public class SpeechRecog : MonoBehaviour
             isUserSpeaking = false;
             OnPhraseRecognized.Invoke(text);
             SaveDictationResults(text);
+
         }
     }
 
+    private int answerCount = 1;
+    private int GetAnswer(string question)
+    {
+        // need to write logic to answer the questions
+        return answerCount++;
+    }
+    
     public void SaveDictationResults(string text)
     {
-        PlayerPrefs.SetString("result.txt",text);
+        InputQuestions.Add(text);
+        int answer = GetAnswer(text);
+        InputAnswers.Add(answer);
+
+        // foreach (string result in InputQuestions)
+        // {
+        //     Debug.Log(result);
+        // }
+       
     }
+
+    ~SpeechRecog()
+    {
+        SaveResult();
+    }
+
+    private void SaveResult()
+    {
+        StreamWriter writer;
+        writer = File.AppendText(path);
+        string questionListString = String.Join(",", InputQuestions.ToArray());
+        string answerListString = String.Join(",", InputAnswers.ToArray());
+        writer.WriteLine(questionListString);
+        writer.WriteLine(answerListString);
+        writer.Close();
+    }
+
 
     private void DictationRecognizer_OnDictationError(string error, int hresult)
     {
