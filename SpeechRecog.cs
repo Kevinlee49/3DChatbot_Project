@@ -46,6 +46,10 @@ public class SpeechRecog : MonoBehaviour
                 Debug.Log("results.csv created.");
             }
         }
+        else
+        {
+            Debug.Log("results.csv already exists.");
+        }
         StartDictationEngine();
     }
 
@@ -113,14 +117,11 @@ public class SpeechRecog : MonoBehaviour
         Debug.LogFormat("Dictation result: {0}", text);
         if (ResultedText) ResultedText.text += text + "\n";
 
-
-
         if (isUserSpeaking == true)
         {
             isUserSpeaking = false;
             OnPhraseRecognized.Invoke(text);
             SaveDictationResults(text);
-
         }
     }
 
@@ -133,13 +134,15 @@ public class SpeechRecog : MonoBehaviour
     
     public void SaveDictationResults(string text)
     {
-        InputQuestions.Add(text);
-        int answer = GetAnswer(text);
-        InputAnswers.Add(answer);
-
+        if (!String.IsNullOrEmpty(text))
+        {
+            InputQuestions.Add(text);
+            int answer = GetAnswer(text);
+            InputAnswers.Add(answer);
+        }
         // foreach (string result in InputQuestions)
         // {
-        //     Debug.Log(result);
+        //      Debug.Log(result);
         // }
        
     }
@@ -151,13 +154,18 @@ public class SpeechRecog : MonoBehaviour
 
     private void SaveResult()
     {
-        StreamWriter writer;
-        writer = File.AppendText(path);
-        string questionListString = String.Join(",", InputQuestions.ToArray());
-        string answerListString = String.Join(",", InputAnswers.ToArray());
-        writer.WriteLine(questionListString);
-        writer.WriteLine(answerListString);
-        writer.Close();
+        if (InputQuestions.Count > 0 && InputAnswers.Count > 0)
+        {
+            StreamWriter writer;
+            writer = File.AppendText(path);
+            string questionListString = String.Join(",", InputQuestions.ToArray());
+            string answerListString = String.Join(",", InputAnswers.ToArray());
+            // Debug.Log(questionListString);
+            // Debug.Log(answerListString);
+            writer.WriteLine(questionListString);
+            writer.WriteLine(answerListString);
+            writer.Close();
+        }
     }
 
 
