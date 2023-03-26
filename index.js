@@ -5,41 +5,27 @@ const { Configuration, OpenAIApi } = require("openai");
 const express = require('express')
 var cors = require('cors') // require 꼭 필요
 const app = express()
+const configuration = new Configuration({
+    apiKey: apiKey,
+});
+const openai = new OpenAIApi(configuration);
 
 // 3. CORS 이슈 처리
 // let corsOptions = {
 //     origin: 'https://www.domain.com',
 //     credentials: true
 // }
-
 //app.use(cors(corsOptions));
 app.use(cors());
-
 
 // POST 요청 받을 수 있게 만듦
 app.use(express.json()) // for parsing application/json
 app.use(express.urlencoded({ extended: true })) // for parsing application/x-www-form-urlencoded
 
 // POST method route
-app.post('/', function (req, res) {
-    res.send('POST request to the homepage'); // 이 안에 불러와야함.
-});
-
-//app.get('/', function (req, res) {
-//    res.send('Hello World')}) // GET -> POST 로 바꿔주기
-
-app.listen(3000)
-// 
-
-const configuration = new Configuration({
-    apiKey: apiKey,
-});
-const openai = new OpenAIApi(configuration);
-
-async function apiCall() {
+app.post('/fortuneTell', async function (req, res) {
     const completion = await openai.createChatCompletion({ //async function apiCall 로 감싸줘야함, 이건 최신버전이라 괜춘
         model: "gpt-3.5-turbo",
-        // 옵션 추가 하기
         max_tokens: 100,
         temperature: 0.5,
         messages: [
@@ -49,7 +35,11 @@ async function apiCall() {
             { role: "user", content: "오늘의 운세가 뭐야?" }
         ],
     }); // 주고 받는 메시지가 저 배열에 계속 누적해서 보내야 되는것
-    // console.log(completion.data.choices[0].message);
-    console.log(completion.data.choices[0].message['content']);
-}
-apiCall();
+    let fortune = completion.data.choices[0].message['content'];
+    console.log(fortune);
+    res.json({ "assistant": fortune }); // 'POST request to the homepage' 이 안에 불러와야함.
+});
+
+app.listen(3000)
+
+
