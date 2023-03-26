@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>운세보는 요정</title>
+</head>
+
+<body>
+    <h1></h1>
+    <button onclick="getFortune()">Request</button>
+    <script>
+        async function getFortune() {
+            try {
+                const response = await fetch('http://localhost:3000/fortuneTell', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ name: 'Myungeun' })
+                });
+                const data = await response.json();
+                console.log(data);
+                return data;
+            } catch (error) {
+                console.error(error);
+            }
+        }
+    </script>
+</body>
+
+</html>
