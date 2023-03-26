@@ -4,7 +4,6 @@
 <head>
     <meta charset="UTF-8">
     <title>Chat UI Screen</title>
-    <link rel="stylesheet" href="style.css">
     <style>
         body {
             margin: 0;
@@ -85,16 +84,22 @@
         </div>
     </div>
     <script>
-        const chatBox = document.querySelector('.chat-box'); // 여기에 let을 써서 유저, 어시스턴트 메시지를 받아보기
+        const chatBox = document.querySelector('.chat-box');
+        let userMessages = []; // user message 모두 리스트에 추가해줌
+        let assistantMessages = []; // 위와 같음, 다만 어시스턴트 메시지
 
         const sendMessage = async () => {
             const chatInput = document.querySelector('.chat-input input');
             const chatMessage = document.createElement('div');
             chatMessage.classList.add('chat-message');
             chatMessage.innerHTML = `
-    <p>${chatInput.value}</p>
-  `;
+    <p>${chatInput.value}</p> 
+  `; // chatinput.value - 이게 채팅메시지
             chatBox.appendChild(chatMessage);
+
+            //userMessage 메세지 추가
+            userMessages.push(chatInput.value);
+
             chatInput.value = '';
 
             const response = await fetch('http://localhost:3000/fortuneTell', {
@@ -103,11 +108,15 @@
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    message: chatInput.value // 인풋창의 메시지를 서버로 보내는 것
-                })
+                    userMessages: userMessages,
+                    assistantMessages: assistantMessages,
+                }) // JSON에 유저,어시스턴트 메시지 모두 보내기
             });
 
             const data = await response.json();
+
+            //assistantMessage 메세지 추가
+            assistantMessages.push(data.assistant);
 
             const astrologerMessage = document.createElement('div');
             astrologerMessage.classList.add('chat-message');
