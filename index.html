@@ -1,33 +1,123 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html>
 
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>운세보는 요정</title>
+    <title>Chat UI Screen</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+        }
+
+        .chat-container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .chat-box {
+            background-color: #f2f2f2;
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            overflow-y: scroll;
+            height: 300px;
+        }
+
+        .chat-message {
+            background-color: #fff;
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+
+        .chat-message p {
+            margin: 0;
+            padding: 0;
+        }
+
+        .chat-input {
+            display: flex;
+            margin-top: 20px;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            margin-right: 10px;
+        }
+
+        .chat-input button {
+            background-color: #4CAF50;
+            color: #fff;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .chat-input button:hover {
+            background-color: #3e8e41;
+        }
+
+        .assistant {
+            color: blue;
+        }
+    </style>
 </head>
 
 <body>
-    <h1></h1>
-    <button onclick="getFortune()">Request</button>
+    <div class="chat-container">
+        <div class="chat-box">
+            <div class="chat-message">
+                <p class="assistant">운세에 대해서 물어봐 주세요!</p>
+            </div>
+        </div>
+        <div class="chat-input">
+            <input type="text" placeholder="Type your message here...">
+            <button>Send</button>
+        </div>
+    </div>
     <script>
-        async function getFortune() {
-            try {
-                const response = await fetch('http://localhost:3000/fortuneTell', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ name: 'Myungeun' })
-                });
-                const data = await response.json();
-                console.log(data);
-                return data;
-            } catch (error) {
-                console.error(error);
-            }
-        }
+        const chatBox = document.querySelector('.chat-box'); // 여기에 let을 써서 유저, 어시스턴트 메시지를 받아보기
+
+        const sendMessage = async () => {
+            const chatInput = document.querySelector('.chat-input input');
+            const chatMessage = document.createElement('div');
+            chatMessage.classList.add('chat-message');
+            chatMessage.innerHTML = `
+    <p>${chatInput.value}</p>
+  `;
+            chatBox.appendChild(chatMessage);
+            chatInput.value = '';
+
+            const response = await fetch('http://localhost:3000/fortuneTell', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    message: chatInput.value // 인풋창의 메시지를 서버로 보내는 것
+                })
+            });
+
+            const data = await response.json();
+
+            const astrologerMessage = document.createElement('div');
+            astrologerMessage.classList.add('chat-message');
+            astrologerMessage.innerHTML = `
+    <p class='assistant'>${data.assistant}</p>
+  `;
+            chatBox.appendChild(astrologerMessage);
+        };
+
+        document.querySelector('.chat-input button').addEventListener('click', sendMessage);
     </script>
 </body>
 
