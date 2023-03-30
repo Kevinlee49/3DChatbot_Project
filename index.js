@@ -1,5 +1,5 @@
 // 1. ChatGPT 가 잘 작동하는지 체크
-const apiKey = "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" // api key 발급받기 from openai
+const apiKey = "" // api key 발급받기 from openai
 const serverless = require('serverless-http');
 const { Configuration, OpenAIApi } = require("openai");
 // 2. 웹 서버 구축하기
